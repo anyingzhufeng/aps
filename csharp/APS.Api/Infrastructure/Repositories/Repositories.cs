@@ -58,7 +58,7 @@ public class EfRepository<T> : IRepository<T> where T : class
     }
 
     public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
-        => await _dbSet.AnyAsync(predicate.Where(e => !IsSoftDeleted(e)));
+        => await _dbSet.IgnoreQueryFilters().AnyAsync(predicate);
 
     protected static bool IsSoftDeleted(T entity)
     {

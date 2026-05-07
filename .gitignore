@@ -11,3 +11,8 @@ coverage/
 *.user
 bin/
 obj/
+# Test/temp files
+sql/*test*.sql
+sql/*test*.txt
+sql/cron_*.sql
+
