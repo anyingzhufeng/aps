@@ -1,0 +1,40 @@
+-- 067_sch_schedule_demand（排程需求表）
+-- 记录每次排程任务的输入需求，包括待排工单、约束参数、优先级设置
+-- 每次发起排程时写入，排程完成后更新状态
+
+CREATE TABLE IF NOT EXISTS `sch_schedule_demand` (
+    `id`                BIGINT          NOT NULL    AUTO_INCREMENT  COMMENT '主键',
+    `demand_no`         VARCHAR(64)     NOT NULL                    COMMENT '需求编号（格式：DEMAND-YYYYMMDD-XXXX）',
+    `schedule_mode`     VARCHAR(16)     NOT NULL                    COMMENT '排程模式：FORWARD（前推）/BACKWARD（后拉）/HYBRID（混合）',
+    `priority_mode`     VARCHAR(16)     NOT NULL                    COMMENT '优先级模式：SALES（销售）/MRP（MRP）/MANUAL（手动）',
+    `start_date`        DATE            NULL                        COMMENT '排程开始日期（前推时必填）',
+    `end_date`          DATE            NULL                        COMMENT '排程结束日期（后拉时必填）',
+    `wo_count`          INT             NOT NULL    DEFAULT 0       COMMENT '本次参与排程的工单数量',
+    `line_count`        INT             NOT NULL    DEFAULT 0       COMMENT '本次参与排程的产线数量',
+    `constraint_level`  VARCHAR(16)     NOT NULL    DEFAULT 'NORMAL' COMMENT '约束等级：RELAXED（宽松）/NORMAL（普通）/TIGHT（严格）',
+    `max_overtime_ratio`DECIMAL(5,2)    NOT NULL    DEFAULT 0        COMMENT '最大加班比例（%）',
+    `allow_split`       TINYINT(1)      NOT NULL    DEFAULT 0        COMMENT '是否允许工单拆分',
+    `allow_reorder`     TINYINT(1)      NOT NULL    DEFAULT 1        COMMENT '是否允许调整工单顺序',
+    `status`            VARCHAR(16)     NOT NULL    DEFAULT 'PENDING' COMMENT '状态：PENDING/RUNNING/SUCCESS/FAILED/PARTIAL',
+    `result_summary`   TEXT            NULL                        COMMENT '排程结果摘要（JSON格式）',
+    `total_wo`          INT             NULL                        COMMENT '排程成功工单数',
+    `scheduled_wo`      INT             NULL                        COMMENT '实际排入工单数',
+    `unscheduled_wo`    INT             NULL                        COMMENT '未能排入工单数',
+    `total_tardiness`   DECIMAL(12,2)   NULL                        COMMENT '总延迟天数',
+    `total_idle_hours`  DECIMAL(10,2)   NULL                        COMMENT '总空闲工时',
+    `total_overtime`    DECIMAL(10,2)   NULL                        COMMENT '总加班工时',
+    `solve_time_ms`     BIGINT          NULL                        COMMENT '求解耗时（毫秒）',
+    `solver_type`       VARCHAR(32)     NULL                        COMMENT '求解器类型：HEURISTIC/CP_SAT/MILP',
+    `triggered_by`      VARCHAR(64)     NOT NULL                    COMMENT '触发人',
+    `remark`            VARCHAR(500)    NULL                        COMMENT '备注',
+    `created_by`        VARCHAR(64)     NOT NULL                    COMMENT '创建人',
+    `created_at`        DATETIME        NOT NULL                    COMMENT '创建时间',
+    `updated_by`        VARCHAR(64)     NULL                        COMMENT '修改人',
+    `updated_at`        DATETIME        NOT NULL                    COMMENT '修改时间',
+    `version`           INT             NOT NULL    DEFAULT 0       COMMENT '乐观锁版本号',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_demand_no` (`demand_no`),
+    INDEX `idx_status` (`status`),
+    INDEX `idx_schedule_mode` (`schedule_mode`),
+    INDEX `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='排程需求表';

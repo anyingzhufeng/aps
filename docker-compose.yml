@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  aps-api:
+    build:
+      context: .
+      dockerfile: Dockerfile-backend
+    container_name: aps-api
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DatabaseProvider=MySql
+      - ConnectionStrings__DefaultDb=Server=mysql;Port=3306;Database=aps_db;Uid=aps_user;Pwd=Aps@2026!;CharSet=utf8mb4;AllowPublicKeyRetrieval=true;SslMode=None;
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  aps-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+    container_name: aps-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - aps-api
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: aps-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Root@2026!
+      MYSQL_DATABASE: aps_db
+      MYSQL_USER: aps_user
+      MYSQL_PASSWORD: Aps@2026!
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env.local
+.env.*.local
+.vscode/
+.idea/
+coverage/
+*.suo
+*.user
+bin/
+obj/
